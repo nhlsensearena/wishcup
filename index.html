@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NHL Sense Arena · Leaderboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Bricolage+Grotesque:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --red:#dc2828;
+  --red-dark:#b81e1e;
+  --gold:#e8a020;
+  --gold-dark:#c07010;
+  --bg:#111114;
+  --bg2:#18181c;
+  --bg3:#1e1e24;
+  --line:#2a2a32;
+  --text:#f0eee8;
+  --muted:#6a6a7a;
+  --rank1:#f5a623;
+  --rank2:#b8b8c8;
+  --rank3:#c87040;
+}
+
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Oswald',sans-serif;}
+
+/* ── HEADER ── */
+header{
+  background:var(--bg2);
+  border-bottom:2px solid var(--red);
+  padding:0 2.5rem;
+  height:72px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+}
+.header-brand{display:flex;align-items:center;gap:14px;}
+.header-wordmark{font-size:22px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text);}
+.header-wordmark span{color:var(--red);}
+.header-right{display:flex;align-items:center;gap:18px;}
+.live-badge{
+  display:flex;align-items:center;gap:6px;
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:12px;font-weight:600;letter-spacing:.1em;
+  color:var(--gold);text-transform:uppercase;
+}
+.live-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--gold);
+  animation:pulse 1.8s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.8);}}
+.refresh-info{font-family:'Bricolage Grotesque',sans-serif;font-size:12px;color:var(--muted);}
+
+/* ── MAIN LAYOUT ── */
+main{
+  max-width:1280px;margin:0 auto;
+  padding:2.5rem 2rem 4rem;
+}
+.boards-wrap{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:2rem;
+}
+@media(max-width:800px){.boards-wrap{grid-template-columns:1fr;}}
+
+/* ── BOARD CARD ── */
+.board{background:var(--bg2);border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+.board-header{
+  padding:1.25rem 1.5rem;
+  border-bottom:1px solid var(--line);
+  display:flex;align-items:baseline;gap:.5rem;
+}
+.board-role{font-size:32px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--red);}
+.board-title{font-size:14px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);}
+
+/* ── TABLE ── */
+table{width:100%;border-collapse:collapse;}
+thead tr{border-bottom:1px solid var(--line);}
+thead td{
+  padding:10px 16px;
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:11px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);
+}
+tbody tr{
+  border-bottom:1px solid var(--line);
+  transition:background .15s;
+}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:rgba(255,255,255,.03);}
+tbody tr.animate-in{animation:rowIn .3s ease both;}
+@keyframes rowIn{from{opacity:0;transform:translateX(-8px);}to{opacity:1;transform:translateX(0);}}
+
+td{padding:14px 16px;vertical-align:middle;}
+.td-rank{
+  width:44px;
+  font-size:20px;font-weight:700;
+  color:var(--muted);
+  text-align:center;
+}
+.rank-medal{
+  width:32px;height:32px;border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;
+  margin:0 auto;
+}
+.medal-1{background:rgba(245,166,35,.18);color:var(--rank1);}
+.medal-2{background:rgba(184,184,200,.13);color:var(--rank2);}
+.medal-3{background:rgba(200,112,64,.14);color:var(--rank3);}
+
+.td-name{font-size:17px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;}
+.td-score{
+  text-align:right;width:100px;
+  font-size:17px;font-weight:500;color:var(--text);
+}
+.score-label{
+  display:block;
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:10px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);
+  margin-bottom:1px;
+}
+.score-val{
+  font-size:19px;font-weight:700;color:var(--gold);
+}
+
+/* ── STATE MESSAGES ── */
+.board-loading,.board-empty{
+  padding:3rem 1.5rem;
+  text-align:center;
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:14px;color:var(--muted);
+  letter-spacing:.04em;
+}
+.spinner{
+  width:28px;height:28px;border:2px solid var(--line);
+  border-top-color:var(--red);border-radius:50%;
+  animation:spin .7s linear infinite;
+  margin:0 auto 12px;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ── FOOTER ── */
+footer{
+  text-align:center;
+  font-family:'Bricolage Grotesque',sans-serif;
+  font-size:12px;color:var(--muted);
+  padding:1.5rem;
+  border-top:1px solid var(--line);
+  letter-spacing:.04em;
+}
+footer span{color:var(--red);}
+
+/* ── REFRESH FLASH ── */
+.board.refreshing table{opacity:.5;transition:opacity .2s;}
+.board table{opacity:1;transition:opacity .3s;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-brand">
+    <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="36" height="36" rx="6" fill="#dc2828"/>
+      <path d="M7 18C7 12.477 11.477 8 17 8h2c5.523 0 10 4.477 10 10s-4.477 10-10 10h-2C11.477 28 7 23.523 7 18z" fill="rgba(0,0,0,.25)"/>
+      <text x="18" y="23" text-anchor="middle" font-family="Oswald,sans-serif" font-size="13" font-weight="700" fill="#fff" letter-spacing="1">SA</text>
+    </svg>
+    <span class="header-wordmark"><span>SENSE</span> ARENA</span>
+  </div>
+  <div class="header-right">
+    <div class="live-badge"><div class="live-dot"></div>Live</div>
+    <div class="refresh-info" id="refresh-info">Refreshing…</div>
+  </div>
+</header>
+
+<main>
+  <div class="boards-wrap">
+    <div class="board" id="board-goalies">
+      <div class="board-header">
+        <span class="board-role">Goalies</span>
+        <span class="board-title">Current Leaderboard</span>
+      </div>
+      <div class="board-loading"><div class="spinner"></div>Loading data…</div>
+    </div>
+    <div class="board" id="board-players">
+      <div class="board-header">
+        <span class="board-role">Players</span>
+        <span class="board-title">Current Leaderboard</span>
+      </div>
+      <div class="board-loading"><div class="spinner"></div>Loading data…</div>
+    </div>
+  </div>
+</main>
+
+<footer>NHL <span>Sense Arena</span> · All Stars Leaderboard · Auto-refreshes every 30s</footer>
+
+<script>
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQLpxc4eeRNwLGRUGJHZCHLB--ccD6PJ4hiYtIY-J_PqTlBJZebvm3XV_8QElx0NO8drP72U2EWwx_q/pub?gid=0&single=true&output=csv';
+const REFRESH_MS = 30000;
+
+/* ── CSV parser (no deps) ── */
+function parseCSV(text) {
+  const rows = [];
+  const lines = text.trim().split('\n');
+  const headers = splitCSVLine(lines[0]).map(h => h.trim().toLowerCase());
+  for (let i = 1; i < lines.length; i++) {
+    const vals = splitCSVLine(lines[i]);
+    const row = {};
+    headers.forEach((h, idx) => { row[h] = (vals[idx] || '').trim(); });
+    rows.push(row);
+  }
+  return { headers, rows };
+}
+
+function splitCSVLine(line) {
+  const result = []; let cur = ''; let inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') { inQ = !inQ; }
+    else if (c === ',' && !inQ) { result.push(cur); cur = ''; }
+    else { cur += c; }
+  }
+  result.push(cur);
+  return result;
+}
+
+/* ── Column detection helpers ── */
+function findCol(headers, ...candidates) {
+  for (const c of candidates) {
+    const h = headers.find(h => h === c || h.includes(c));
+    if (h) return h;
+  }
+  return null;
+}
+
+function isExcluded(row, excludeCol) {
+  if (!excludeCol) return false;
+  const v = (row[excludeCol] || '').toLowerCase();
+  return v === 'true' || v === '1' || v === 'yes' || v === 'x';
+}
+
+function hasValue(row, scoreCol) {
+  if (!scoreCol) return false;
+  const v = (row[scoreCol] || '').trim();
+  return v !== '' && v !== '-' && v !== 'n/a';
+}
+
+/* ── Determine score columns (all numeric-looking non-meta cols) ── */
+function getScoreCols(headers, metaCols) {
+  return headers.filter(h => !metaCols.includes(h));
+}
+
+/* ── Render a board ── */
+function renderBoard(boardEl, rows, scoreHeaders) {
+  if (!rows.length) {
+    boardEl.querySelector('table, .board-loading, .board-empty')?.remove();
+    const empty = document.createElement('div');
+    empty.className = 'board-empty';
+    empty.textContent = 'No data available.';
+    boardEl.appendChild(empty);
+    return;
+  }
+
+  /* Build table */
+  const colCount = scoreHeaders.length;
+  const colWidth = colCount > 0 ? Math.floor(100 / colCount) : 100;
+
+  let html = '<table><thead><tr>';
+  html += '<td style="width:44px"></td>';
+  html += '<td>Name</td>';
+  scoreHeaders.forEach(sh => {
+    html += `<td class="mwTD" style="text-align:right;width:${colWidth}px">${sh.toUpperCase()}</td>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  rows.forEach((row, i) => {
+    const rank = i + 1;
+    let rankCell;
+    if (rank <= 3) {
+      const cls = ['medal-1','medal-2','medal-3'][rank-1];
+      rankCell = `<div class="rank-medal ${cls}">${rank}</div>`;
+    } else {
+      rankCell = `<span style="color:var(--muted);font-size:16px;font-weight:600">${rank}</span>`;
+    }
+
+    html += `<tr class="animate-in" style="animation-delay:${i*35}ms">`;
+    html += `<td class="td-rank">${rankCell}</td>`;
+    html += `<td class="td-name">${row._name || '—'}</td>`;
+    scoreHeaders.forEach(sh => {
+      const val = row[sh] || '—';
+      html += `<td class="td-score"><span class="score-val">${val}</span></td>`;
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+
+  /* Swap in */
+  const old = boardEl.querySelector('table, .board-loading, .board-empty');
+  if (old) old.remove();
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  boardEl.appendChild(tmp.firstElementChild);
+}
+
+/* ── Main fetch + process ── */
+async function fetchAndRender() {
+  const goaliesEl = document.getElementById('board-goalies');
+  const playersEl = document.getElementById('board-players');
+
+  try {
+    const resp = await fetch(CSV_URL);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const text = await resp.text();
+    const { headers, rows } = parseCSV(text);
+
+    /* Meta columns detection */
+    const excludeCol  = findCol(headers, 'excluded', 'exclude', 'hidden', 'skip');
+    const roleCol     = findCol(headers, 'role', 'type', 'position', 'goalie', 'goalie_player');
+    const nameCol     = findCol(headers, 'name', 'nick', 'nickname', 'player', 'user');
+
+    const metaCols = [excludeCol, roleCol, nameCol].filter(Boolean);
+    const scoreCols = getScoreCols(headers, metaCols);
+
+    /* Filter: not excluded + has at least one score */
+    const active = rows.filter(r => {
+      if (isExcluded(r, excludeCol)) return false;
+      return scoreCols.some(sc => hasValue(r, sc));
+    }).map(r => ({ ...r, _name: nameCol ? r[nameCol] : '—' }));
+
+    /* Split goalies / players */
+    let goalies, players;
+    if (roleCol) {
+      goalies = active.filter(r => (r[roleCol] || '').toLowerCase().includes('goali'));
+      players = active.filter(r => {
+        const v = (r[roleCol] || '').toLowerCase();
+        return v.includes('player') || v.includes('skater') || v.includes('forward') || v.includes('defense');
+      });
+      /* Fallback: no roleCol match → show all in both */
+      if (!goalies.length && !players.length) { goalies = active; players = []; }
+    } else {
+      /* No role column – show all in Players board */
+      goalies = []; players = active;
+    }
+
+    /* Score cols per board (prefer cols with any non-empty value in that group) */
+    function activeScoreCols(group) {
+      return scoreCols.filter(sc => group.some(r => hasValue(r, sc)));
+    }
+
+    renderBoard(goaliesEl, goalies, activeScoreCols(goalies));
+    renderBoard(playersEl, players, activeScoreCols(players));
+
+    /* Update refresh label */
+    const now = new Date();
+    document.getElementById('refresh-info').textContent =
+      'Updated ' + now.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+
+  } catch (err) {
+    console.error(err);
+    [goaliesEl, playersEl].forEach(el => {
+      const old = el.querySelector('table,.board-loading,.board-empty');
+      if (old) old.remove();
+      const msg = document.createElement('div');
+      msg.className = 'board-empty';
+      msg.textContent = 'Failed to load data.';
+      el.appendChild(msg);
+    });
+    document.getElementById('refresh-info').textContent = 'Error – will retry';
+  }
+}
+
+fetchAndRender();
+setInterval(fetchAndRender, REFRESH_MS);
+</script>
+</body>
+</html>
