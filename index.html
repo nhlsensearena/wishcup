@@ -93,7 +93,7 @@ td{padding:14px 16px;vertical-align:middle;}
 .medal-2{background:rgba(184,184,200,.13);color:var(--rank2);}
 .medal-3{background:rgba(200,112,64,.14);color:var(--rank3);}
 
-.td-name{font-size:17px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;}
+.td-name{font-size:22px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;}
 .td-score{text-align:right;width:110px;}
 .score-val{font-size:19px;font-weight:700;color:var(--gold);}
 
@@ -124,7 +124,7 @@ footer span{color:var(--red);}
 
 <header>
   <div class="header-logo">
-    <img src="https://brxcdn.com/exp-app-storage/2bd9d5c4-197b-11ed-ae94-3a8fa886db31/media/original/ed049440-b983-11f0-a31f-e6021a4401cc" alt="NHL Sense Arena"/>
+    <img src="https://brxcdn.com/exp-app-storage/2bd9d5c4-197b-11ed-ae94-3a8fa886db31/media/original/0cc7bc70-5903-11f1-a44f-ce9e52cf65d3" alt="NHL Sense Arena" style="height:52px;display:block;"/>
   </div>
   <div class="header-right">
     <div class="live-badge"><div class="live-dot"></div>Live</div>
@@ -134,10 +134,7 @@ footer span{color:var(--red);}
 
 <main>
   <div class="board" id="board-players">
-    <div class="board-header">
-      <span class="board-role">Players</span>
-      <span class="board-title">Current Leaderboard</span>
-    </div>
+    <div class="board-header"><span class="board-role">WISH CUP CHALLENGE LEADERBOARD</span></div>
     <div class="board-loading"><div class="spinner"></div>Loading data…</div>
   </div>
 </main>
@@ -206,7 +203,7 @@ function renderBoard(boardEl, rows, scoreCol) {
     return;
   }
 
-  const scoreLabel = 'REACTION RELEASE';
+  const scoreLabel = 'TOTAL POINTS';
 
   let html = '<table><thead><tr>';
   html += '<td style="width:52px;text-align:center">#</td>';
