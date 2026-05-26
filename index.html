@@ -243,39 +243,25 @@ async function fetchAndRender() {
     const text = await resp.text();
     const { headers, rows } = parseCSV(text);
 
-    const excludeCol    = findCol(headers, 'excluded', 'exclude', 'hidden', 'skip');
-    const roleCol       = findCol(headers, 'role', 'type', 'position', 'goalie_player');
-    const indexCol      = findCol(headers, 'index', 'idx', 'order', '#', 'no');
+    const SCORE_COL     = 'reaction_release';
+    const EXCLUDE_COL   = findCol(headers, 'excluded', 'exclude', 'hidden', 'skip');
     const firstNameCol  = findCol(headers, 'first name', 'firstname', 'first_name', 'fname');
     const lastNameCol   = findCol(headers, 'last name', 'lastname', 'last_name', 'lname', 'surname');
-    const scoreCol      = 'reaction_release';
 
-    const metaCols = [excludeCol, roleCol, indexCol, firstNameCol, lastNameCol, scoreCol].filter(Boolean);
+    const players = rows
+      .filter(r => {
+        if (EXCLUDE_COL && (r[EXCLUDE_COL] || '').trim().toLowerCase() === 'x') return false;
+        const v = (r[SCORE_COL] || '').trim();
+        return v !== '' && v !== '-' && v !== 'n/a';
+      })
+      .map(r => ({
+        _name:     [firstNameCol ? r[firstNameCol] : '', lastNameCol ? r[lastNameCol] : ''].filter(Boolean).join(' ') || '—',
+        _score:    parseFloat(r[SCORE_COL]) || 0,
+        _scoreRaw: r[SCORE_COL],
+      }))
+      .sort((a, b) => b._score - a._score);
 
-    const active = rows.filter(r => {
-      if (isExcluded(r, excludeCol)) return false;
-      return scoreCol ? hasValue(r, scoreCol) : true;
-    }).map(r => ({
-      ...r,
-      _index: indexCol ? r[indexCol] : null,
-      _name:  [firstNameCol ? r[firstNameCol] : '', lastNameCol ? r[lastNameCol] : ''].filter(Boolean).join(' ') || '—',
-      _score: scoreCol ? parseFloat(r[scoreCol]) || 0 : 0,
-      _scoreRaw: scoreCol ? r[scoreCol] : '—',
-    }));
-
-    /* Players only – skip goalies */
-    let players;
-    if (roleCol) {
-      players = active.filter(r => !(r[roleCol] || '').toLowerCase().includes('goali'));
-      if (!players.length) players = active;
-    } else {
-      players = active;
-    }
-
-    /* Sort by score descending */
-    players.sort((a, b) => b._score - a._score);
-
-    renderBoard(playersEl, players, scoreCol);
+    renderBoard(playersEl, players, SCORE_COL);
 
     const now = new Date();
     document.getElementById('refresh-info').textContent =
