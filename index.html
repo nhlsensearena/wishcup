@@ -184,7 +184,7 @@ function findCol(headers, ...candidates) {
 function isExcluded(row, excludeCol) {
   if (!excludeCol) return false;
   const v = (row[excludeCol] || '').toLowerCase();
-  return v === 'true' || v === '1' || v === 'yes' || v === 'x';
+  return v === 'x';
 }
 
 function hasValue(row, scoreCol) {
@@ -206,7 +206,7 @@ function renderBoard(boardEl, rows, scoreCol) {
     return;
   }
 
-  const scoreLabel = scoreCol ? scoreCol.toUpperCase() : 'SCORE';
+  const scoreLabel = 'REACTION RELEASE';
 
   let html = '<table><thead><tr>';
   html += '<td style="width:52px;text-align:center">#</td>';
@@ -251,7 +251,7 @@ async function fetchAndRender() {
     const indexCol      = findCol(headers, 'index', 'idx', 'order', '#', 'no');
     const firstNameCol  = findCol(headers, 'first name', 'firstname', 'first_name', 'fname');
     const lastNameCol   = findCol(headers, 'last name', 'lastname', 'last_name', 'lname', 'surname');
-    const scoreCol      = findCol(headers, 'score', 'points', 'pts', 'result', 'total');
+    const scoreCol      = 'reaction_release';
 
     const metaCols = [excludeCol, roleCol, indexCol, firstNameCol, lastNameCol, scoreCol].filter(Boolean);
 
